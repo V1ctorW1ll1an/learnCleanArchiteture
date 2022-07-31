@@ -14,5 +14,8 @@
         "rest-full-api-nodejs"
     ],
     "author": "Victor Willian de Sousa",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "typescript": "^4.7.4"
+    }
 }
