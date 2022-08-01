@@ -1,5 +1,5 @@
 interface ICacheStore {
-    delete(): Promise<void>;
+    delete({ key }: { key: string }): Promise<void>;
 }
 
 interface ISutFactory {
@@ -11,14 +11,17 @@ class LocalSavePurchases {
     constructor(private readonly cacheStore: ICacheStore) {}
 
     public async savePurchases(): Promise<void> {
-        this.cacheStore.delete();
+        const key = "purchases";
+        this.cacheStore.delete({ key });
     }
 }
 
 class CacheStoreSpay implements ICacheStore {
     public deleteCallsCount = 0;
-    public async delete(): Promise<void> {
+    public key = "";
+    public async delete({ key }: { key: string }): Promise<void> {
         this.deleteCallsCount++;
+        this.key = key;
     }
 }
 
@@ -30,21 +33,24 @@ const sutFactory = (): ISutFactory => {
 
 describe("LocalSavePurchases", () => {
     it("Should not delete cache on sut.init", () => {
-        // Arrange
         const { cacheStore } = sutFactory();
 
-        // assert
         expect(cacheStore.deleteCallsCount).toBe(0);
     });
 
     it("Should delete old cache on sut.save", async () => {
-        // Arrange
         const { sut, cacheStore } = sutFactory();
 
-        // Act
         await sut.savePurchases();
 
-        // assert
         expect(cacheStore.deleteCallsCount).toBe(1);
+    });
+
+    it("Should invoke delete method with the correct key", async () => {
+        const { sut, cacheStore } = sutFactory();
+
+        sut.savePurchases();
+
+        expect(cacheStore.key).toBe("purchases");
     });
 });
