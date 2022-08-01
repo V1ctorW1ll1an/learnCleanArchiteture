@@ -2,6 +2,11 @@ interface ICacheStore {
     delete(): Promise<void>;
 }
 
+interface ISutFactory {
+    sut: LocalSavePurchases;
+    cacheStore: CacheStoreSpay;
+}
+
 class LocalSavePurchases {
     constructor(private readonly cacheStore: ICacheStore) {}
 
@@ -17,11 +22,16 @@ class CacheStoreSpay implements ICacheStore {
     }
 }
 
+const sutFactory = (): ISutFactory => {
+    const cacheStore = new CacheStoreSpay();
+    const sut = new LocalSavePurchases(cacheStore);
+    return { sut, cacheStore };
+};
+
 describe("LocalSavePurchases", () => {
     it("Should not delete cache on sut.init", () => {
         // Arrange
-        const cacheStore = new CacheStoreSpay();
-        new LocalSavePurchases(cacheStore);
+        const { cacheStore } = sutFactory();
 
         // assert
         expect(cacheStore.deleteCallsCount).toBe(0);
@@ -29,8 +39,7 @@ describe("LocalSavePurchases", () => {
 
     it("Should delete old cache on sut.save", async () => {
         // Arrange
-        const cacheStore = new CacheStoreSpay();
-        const sut = new LocalSavePurchases(cacheStore);
+        const { sut, cacheStore } = sutFactory();
 
         // Act
         await sut.savePurchases();
