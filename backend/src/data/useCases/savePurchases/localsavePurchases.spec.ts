@@ -1,19 +1,9 @@
-interface ICacheStore {
-    delete({ key }: { key: string }): Promise<void>;
-}
+import { ICacheStore } from "@/data/protocols/cache/cacheStore";
+import { LocalSavePurchases } from "./localSavePurchases";
 
 interface ISutFactory {
     sut: LocalSavePurchases;
     cacheStore: CacheStoreSpay;
-}
-
-class LocalSavePurchases {
-    constructor(private readonly cacheStore: ICacheStore) {}
-
-    public async savePurchases(): Promise<void> {
-        const key = "purchases";
-        this.cacheStore.delete({ key });
-    }
 }
 
 class CacheStoreSpay implements ICacheStore {
